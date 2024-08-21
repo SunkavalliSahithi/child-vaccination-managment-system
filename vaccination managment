@@ -1,0 +1,35 @@
+// VaccinationManager.java
+import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
+
+public class VaccinationManager {
+    private Connection connection;
+
+    public VaccinationManager(Connection connection) {
+        this.connection = connection;
+    }
+
+    public void addVaccination(int patientId, String vaccine, String date) throws SQLException {
+        String sql = "INSERT INTO vaccinations (patient_id, vaccine, date) VALUES (?, ?, ?)";
+        try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+            pstmt.setInt(1, patientId);
+            pstmt.setString(2, vaccine);
+            pstmt.setString(3, date);
+            pstmt.executeUpdate();
+        }
+    }
+
+    public List<String> getVaccinations() throws SQLException {
+        List<String> vaccinations = new ArrayList<>();
+        String sql = "SELECT * FROM vaccinations";
+        try (Statement stmt = connection.createStatement();
+             ResultSet rs = stmt.executeQuery(sql)) {
+            while (rs.next()) {
+                vaccinations.add(String.format("ID: %d, Patient ID: %d, Vaccine: %s, Date: %s",
+                        rs.getInt("id"), rs.getInt("patient_id"), rs.getString("vaccine"), rs.getString("date")));
+            }
+        }
+        return vaccinations;
+    }
+}
