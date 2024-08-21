@@ -1,0 +1,49 @@
+// DatabaseManager.java
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.Statement;
+import java.sql.SQLException;
+
+public class DatabaseManager {
+    private static final String URL = "jdbc:sqlite:cvms.db";
+    private Connection connection;
+
+    public DatabaseManager() {
+        try {
+            connection = DriverManager.getConnection(URL);
+            initializeDatabase();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void initializeDatabase() throws SQLException {
+        Statement stmt = connection.createStatement();
+        stmt.execute("CREATE TABLE IF NOT EXISTS patients (" +
+                     "id INTEGER PRIMARY KEY AUTOINCREMENT," +
+                     "name TEXT NOT NULL," +
+                     "dob TEXT NOT NULL," +
+                     "contact TEXT NOT NULL)");
+
+        stmt.execute("CREATE TABLE IF NOT EXISTS vaccinations (" +
+                     "id INTEGER PRIMARY KEY AUTOINCREMENT," +
+                     "patient_id INTEGER," +
+                     "vaccine TEXT NOT NULL," +
+                     "date TEXT NOT NULL," +
+                     "FOREIGN KEY(patient_id) REFERENCES patients(id))");
+    }
+
+    public Connection getConnection() {
+        return connection;
+    }
+
+    public void close() {
+        try {
+            if (connection != null) {
+                connection.close();
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+}
