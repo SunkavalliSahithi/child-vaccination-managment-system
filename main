@@ -1,0 +1,67 @@
+// MainApp.java
+import java.sql.SQLException;
+import java.util.List;
+import java.util.Scanner;
+
+public class MainApp {
+    public static void main(String[] args) {
+        DatabaseManager dbManager = new DatabaseManager();
+        PatientManager patientManager = new PatientManager(dbManager.getConnection());
+        VaccinationManager vaccinationManager = new VaccinationManager(dbManager.getConnection());
+
+        try (Scanner scanner = new Scanner(System.in)) {
+            while (true) {
+                System.out.println("1. Add Patient");
+                System.out.println("2. View Patients");
+                System.out.println("3. Add Vaccination");
+                System.out.println("4. View Vaccinations");
+                System.out.println("5. Exit");
+                System.out.print("Choose an option: ");
+                int choice = scanner.nextInt();
+                scanner.nextLine(); // Consume newline
+
+                switch (choice) {
+                    case 1:
+                        System.out.print("Enter patient name: ");
+                        String name = scanner.nextLine();
+                        System.out.print("Enter date of birth (YYYY-MM-DD): ");
+                        String dob = scanner.nextLine();
+                        System.out.print("Enter contact information: ");
+                        String contact = scanner.nextLine();
+                        patientManager.addPatient(name, dob, contact);
+                        break;
+
+                    case 2:
+                        List<String> patients = patientManager.getPatients();
+                        patients.forEach(System.out::println);
+                        break;
+
+                    case 3:
+                        System.out.print("Enter patient ID: ");
+                        int patientId = scanner.nextInt();
+                        scanner.nextLine(); // Consume newline
+                        System.out.print("Enter vaccine name: ");
+                        String vaccine = scanner.nextLine();
+                        System.out.print("Enter date (YYYY-MM-DD): ");
+                        String date = scanner.nextLine();
+                        vaccinationManager.addVaccination(patientId, vaccine, date);
+                        break;
+
+                    case 4:
+                        List<String> vaccinations = vaccinationManager.getVaccinations();
+                        vaccinations.forEach(System.out::println);
+                        break;
+
+                    case 5:
+                        dbManager.close();
+                        return;
+
+                    default:
+                        System.out.println("Invalid choice, please try again.");
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+}
