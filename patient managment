@@ -1,0 +1,35 @@
+// PatientManager.java
+import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
+
+public class PatientManager {
+    private Connection connection;
+
+    public PatientManager(Connection connection) {
+        this.connection = connection;
+    }
+
+    public void addPatient(String name, String dob, String contact) throws SQLException {
+        String sql = "INSERT INTO patients (name, dob, contact) VALUES (?, ?, ?)";
+        try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+            pstmt.setString(1, name);
+            pstmt.setString(2, dob);
+            pstmt.setString(3, contact);
+            pstmt.executeUpdate();
+        }
+    }
+
+    public List<String> getPatients() throws SQLException {
+        List<String> patients = new ArrayList<>();
+        String sql = "SELECT * FROM patients";
+        try (Statement stmt = connection.createStatement();
+             ResultSet rs = stmt.executeQuery(sql)) {
+            while (rs.next()) {
+                patients.add(String.format("ID: %d, Name: %s, DOB: %s, Contact: %s",
+                        rs.getInt("id"), rs.getString("name"), rs.getString("dob"), rs.getString("contact")));
+            }
+        }
+        return patients;
+    }
+}
